@@ -5,55 +5,47 @@
 ;==============================================================
 
 ; Sprite IDs
-greennote_id equ 0x0
-rednote_id equ 0x1
-yellownote_id equ 0x2
-bluenote_id equ 0x3
-orangenote_id equ 0x4
-rockindicator_id equ 0x5
-number_of_sprites equ 0x6
+leftarrow_id      equ 0x0
+downarrow_id      equ 0x1
+uparrow_id        equ 0x2
+rightarrow_id     equ 0x3
+rockindicator_id  equ 0x4
+number_of_sprites equ 0x5
 
     ; Sprite descriptor structs
 sprite_descriptor_table:
-greennote_sprite:
+leftarrow_sprite:
       dc.w offscreen_position_y                                                ; Y coord (+ 128)
-      dc.b GreenNoteDimensionBits                                              ; Width (bits 0-1) and height (bits 2-3) in tiles
+      dc.b LeftArrowDimensionBits                                              ; Width (bits 0-1) and height (bits 2-3) in tiles
       dc.b 0x01                                                                ; Index of next sprite (linked list)
       dc.b 0x00                                                                ; H/V flipping (bits 3/4), palette index (bits 5-6), priority (bit 7)
-      dc.b GreenNoteTileID                                                     ; Index of first tile
+      dc.b LeftArrowTileID                                                     ; Index of first tile
       dc.w offscreen_position_x                                                ; X coord (+ 128)
-rednote_sprite:
+downarrow_sprite:
       dc.w offscreen_position_y                                                ; Y coord (+ 128)
-      dc.b RedNoteDimensionBits                                                ; Width (bits 0-1) and height (bits 2-3) in tiles
+      dc.b DownArrowDimensionBits                                              ; Width (bits 0-1) and height (bits 2-3) in tiles
       dc.b 0x02                                                                ; Index of next sprite (linked list)
       dc.b 0x00                                                                ; H/V flipping (bits 3/4), palette index (bits 5-6), priority (bit 7)
-      dc.b RedNoteTileID                                                       ; Index of first tile
+      dc.b DownArrowTileID                                                     ; Index of first tile
       dc.w offscreen_position_x                                                ; X coord (+ 128)
-yellownote_sprite:
+uparrow_sprite:
       dc.w offscreen_position_y                                                ; Y coord (+ 128)
-      dc.b YellowNoteDimensionBits                                             ; Width (bits 0-1) and height (bits 2-3) in tiles
+      dc.b UpArrowDimensionBits                                             ; Width (bits 0-1) and height (bits 2-3) in tiles
       dc.b 0x03                                                                ; Index of next sprite (linked list)
       dc.b 0x00                                                                ; H/V flipping (bits 3/4), palette index (bits 5-6), priority (bit 7)
-      dc.b YellowNoteTileID                                                    ; Index of first tile
+      dc.b UpArrowTileID                                                    ; Index of first tile
       dc.w offscreen_position_x                                                ; X coord (+ 128)
-bluenote_sprite:
+rightarrow_sprite:
       dc.w offscreen_position_y                                                ; Y coord (+ 128)
-      dc.b BlueNoteDimensionBits                                               ; Width (bits 0-1) and height (bits 2-3) in tiles
+      dc.b RightArrowDimensionBits                                             ; Width (bits 0-1) and height (bits 2-3) in tiles
       dc.b 0x04                                                                ; Index of next sprite (linked list)
       dc.b 0x00                                                                ; H/V flipping (bits 3/4), palette index (bits 5-6), priority (bit 7)
-      dc.b BlueNoteTileID                                                      ; Index of first tile
-      dc.w offscreen_position_x                                                ; X coord (+ 128)
-orangenote_sprite:
-      dc.w offscreen_position_y                                                ; Y coord (+ 128)
-      dc.b OrangeNoteDimensionBits                                             ; Width (bits 0-1) and height (bits 2-3) in tiles
-      dc.b 0x05                                                                ; Index of next sprite (linked list)
-      dc.b 0x00                                                                ; H/V flipping (bits 3/4), palette index (bits 5-6), priority (bit 7)
-      dc.b OrangeNoteTileID                                                    ; Index of first tile
+      dc.b RightArrowTileID                                                    ; Index of first tile
       dc.w offscreen_position_x                                                ; X coord (+ 128)
 rockindicator_sprite:
       dc.w offscreen_position_y                                                ; Y coord (+ 128)
-      dc.b RockIndicatorDimensionBits                                             ; Width (bits 0-1) and height (bits 2-3) in tiles
-      dc.b 0x06                                                                ; Index of next sprite (linked list)
+      dc.b RockIndicatorDimensionBits                                          ; Width (bits 0-1) and height (bits 2-3) in tiles
+      dc.b 0x05                                                                ; Index of next sprite (linked list)
       dc.b 0x00                                                                ; H/V flipping (bits 3/4), palette index (bits 5-6), priority (bit 7)
       dc.b RockIndicatorTileID                                                 ; Index of first tile
       dc.w offscreen_position_x                                                ; X coord (+ 128)

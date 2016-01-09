@@ -62,43 +62,35 @@ __main:
       jsr LoadFont                                                             ; Jump to subroutine
 z
       ; *************************************
-      ; Load the green note sprite
+      ; Load the lrft arrow sprite
       ; *************************************
-      lea GreenNote, a0                                                        ; Move sprite address to a0
-      move.l #GreenNoteVRAM, d0                                                ; Move VRAM dest address to d0
-      move.l #GreenNoteSizeT, d1                                               ; Move number of tiles to d1
+      lea LeftArrow, a0                                                        ; Move sprite address to a0
+      move.l #LeftArrowVRAM, d0                                                ; Move VRAM dest address to d0
+      move.l #LeftArrowSizeT, d1                                               ; Move number of tiles to d1
       jsr LoadTiles                                                            ; Jump to subroutine
 
       ; *************************************
-      ; Load the red note sprite
+      ; Load the down arrow sprite
       ; *************************************
-      lea RedNote, a0                                                          ; Move sprite address to a0
-      move.l #RedNoteVRAM, d0                                                  ; Move VRAM dest address to d0
-      move.l #RedNoteSizeT, d1                                                 ; Move number of tiles to d1
+      lea DownArrow, a0                                                        ; Move sprite address to a0
+      move.l #DownArrowVRAM, d0                                                ; Move VRAM dest address to d0
+      move.l #DownArrowSizeT, d1                                               ; Move number of tiles to d1
       jsr LoadTiles                                                            ; Jump to subroutine
 
       ; *************************************
-      ; Load the yellow note sprite
+      ; Load the up arrow sprite
       ; *************************************
-      lea YellowNote, a0                                                       ; Move sprite address to a0
-      move.l #YellowNoteVRAM, d0                                               ; Move VRAM dest address to d0
-      move.l #YellowNoteSizeT, d1                                              ; Move number of tiles to d1
+      lea UpArrow, a0                                                          ; Move sprite address to a0
+      move.l #UpArrowVRAM, d0                                                  ; Move VRAM dest address to d0
+      move.l #UpArrowSizeT, d1                                                 ; Move number of tiles to d1
       jsr LoadTiles                                                            ; Jump to subroutine
 
       ; *************************************
-      ; Load the blue note sprite
+      ; Load the right arrow sprite
       ; *************************************
-      lea BlueNote, a0                                                         ; Move sprite address to a0
-      move.l #BlueNoteVRAM, d0                                                 ; Move VRAM dest address to d0
-      move.l #BlueNoteSizeT, d1                                                ; Move number of tiles to d1
-      jsr LoadTiles                                                            ; Jump to subroutine
-      
-      ; *************************************
-      ; Load the orange note sprite
-      ; *************************************
-      lea OrangeNote, a0                                                       ; Move sprite address to a0
-      move.l #OrangeNoteVRAM, d0                                               ; Move VRAM dest address to d0
-      move.l #OrangeNoteSizeT, d1                                              ; Move number of tiles to d1
+      lea RightArrow, a0                                                       ; Move sprite address to a0
+      move.l #RightArrowVRAM, d0                                               ; Move VRAM dest address to d0
+      move.l #RightArrowSizeT, d1                                              ; Move number of tiles to d1
       jsr LoadTiles                                                            ; Jump to subroutine
 
       ; *************************************
@@ -113,7 +105,7 @@ z
       ; Load sprite descriptors
       ; ************************************
       lea sprite_descriptor_table, a0                                          ; Sprite table data
-      move.w #number_of_sprites, d0                                            ; 3 sprites
+      move.w #number_of_sprites, d0                                            ; 5 sprites
       jsr LoadSpriteTables
 
       ; ************************************
@@ -138,12 +130,12 @@ z
       move.w #0, (score)                                                       ; initialize score
       move.w #0, (combo)                                                       ; initialize combo
       move.w #1, (multiplier)                                                  ; initialize multiplier
+      move.w #5, (scoredelta)                                                  ; initalize score delta
       move.w #1, (tempo)                                                       ; initialize tempo
-      move.w #note_start_position_y, (greennote_position_y)                    ; Set green note's y position
-      move.w #note_start_position_y, (rednote_position_y)                      ; Set red note's y position
-      move.w #note_start_position_y, (yellownote_position_y)                   ; Set yellow note's y position
-      move.w #note_start_position_y, (bluenote_position_y)                     ; Set blue note's y position
-      move.w #note_start_position_y, (orangenote_position_y)                   ; Set blue note's y position
+      move.w #arrow_start_position_y, (leftarrow_position_y)                   ; Set left arrow's y position
+      move.w #arrow_start_position_y, (downarrow_position_y)                   ; Set down arrow's y position
+      move.w #arrow_start_position_y, (uparrow_position_y)                     ; Set up arrow's y position
+      move.w #arrow_start_position_y, (rightarrow_position_y)                  ; Set blue note's y position
       move.w #rockindicator_start_position_x, (rockindicator_position_x)       ; Set rock indicator's x position
 
       ; ******************************************************************
@@ -153,92 +145,77 @@ GameLoop:
 
       jsr ReadPadA                                                             ; Read pad 1 state, result in d0
 
-      move.w #(note_plane_safearea_offset+note_bounds_top), d2                  ; note safe area offset in d2
+      move.w #(arrow_plane_safearea_offset+arrow_bounds_top), d2               ; arrow safe area offset in d2
+      move.w (score), d3                                                       ; player's score into d3
 
-      ; start of green fret code
-      move.w (greennote_position_y), d1                                        ; green note position in d1
+      ; start of left arrow code
+      move.w (leftarrow_position_y), d1                                        ; left arrow position in d1
       btst #pad_button_left, d0                                                ; Check left pad
       bne @NoLeft                                                              ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @LeftSafeArea                                                        ; if so then don't accept it as a strum
-      move.w #note_start_position_y, d1
-@LeftSafeArea:
+      blt @LeftArrowSafeArea                                                   ; if so then don't accept it
+      move.w #arrow_start_position_y, d1
+      add.w (scoredelta), d3                                                   ; increment the player's score
+@LeftArrowSafeArea:
 @NoLeft:
-      ; green note movement code
+      ; left arrow movement code
       add.w (tempo), d1                                                        ; add the tempo
-      cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @GreenNoteNotWithinBounds                                            ; branch if the player hasn't
-      move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
-@GreenNoteNotWithinBounds:
-      move.w d1, (greennote_position_y)                                        ; set the green note's position normally
+      cmp.w  #(arrow_plane_border_offset-arrow_bounds_bottom), d1              ; does the player miss the arrow entirely
+      blt @LeftArrowNotWithinBounds                                            ; branch if the player hasn't
+      move.w #arrow_start_position_y, d1                                       ; otherwise the player has so move the arrow back to the top
+@LeftArrowNotWithinBounds:
+      move.w d1, (leftarrow_position_y)                                        ; set the left arrow's position normally
 
-      ; start of red fret code
-      move.w (rednote_position_y), d1                                          ; red note position in d1
-      btst #pad_button_right, d0                                               ; Check right pad
+      ; start of down arrow code
+      move.w (downarrow_position_y), d1                                        ; down arrow position in d1
+      btst #pad_button_down, d0                                                ; Check down pad
+      bne @NoDown                                                              ; Branch if button off
+      cmp.w d2, d1                                                             ; is the player pressing too early
+      blt @DownArrowSafeArea                                                   ; if so then don't accept it
+      move.w #arrow_start_position_y, d1
+@DownArrowSafeArea:
+@NoDown:
+      ; down arrow movement code
+      add.w (tempo), d1                                                        ; add the tempo
+      cmp.w  #(arrow_plane_border_offset-arrow_bounds_bottom), d1              ; does the player miss the note entirely
+      blt @DownArrowNotWithinBounds                                            ; branch if the player hasn't
+      move.w #arrow_start_position_y, d1                                       ; otherwise the player has so move the note back to the top
+@DownArrowNotWithinBounds:
+      move.w d1, (downarrow_position_y)                                        ; set the down arrow's position normally
+ 
+      ; start of up arrow code
+      move.w (uparrow_position_y), d1                                          ; up arrow position in d1
+      btst #pad_button_up, d0                                                  ; Check up button
+      bne @NoUp                                                                ; Branch if button off
+      cmp.w d2, d1                                                             ; is the player pressing too early
+      blt @UpArrowSafeArea                                                     ; if so then don't accept it
+      move.w #arrow_start_position_y, d1
+@UpArrowSafeArea:
+@NoUp:
+      ; up arrow movement code
+      add.w (tempo), d1                                                        ; add the tempo
+      cmp.w  #(arrow_plane_border_offset-arrow_bounds_bottom), d1              ; does the player miss the note entirely
+      blt @UpArrowNotWithinBounds                                              ; branch if the player hasn't
+      move.w #arrow_start_position_y, d1                                       ; otherwise the player has so move the note back to the top
+@UpArrowNotWithinBounds:
+      move.w d1, (uparrow_position_y)                                          ; set the up arrow's position normally
+
+      ; start of right code
+      move.w (rightarrow_position_y), d1                                       ; right arrow position in d1
+      btst #pad_button_right, d0                                               ; Check B button
       bne @NoRight                                                             ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @RightSafeArea                                                       ; if so then don't accept it as a strum
-      move.w #note_start_position_y, d1
-@RightSafeArea:
+      blt @RightArrowSafeArea                                                  ; if so then don't accept it
+      move.w #arrow_start_position_y, d1
+@RightArrowSafeArea:
 @NoRight:
-      ; red note movement code
+      ; right arrow movement code
       add.w (tempo), d1                                                        ; add the tempo
-      cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @RedNoteNotWithinBounds                                              ; branch if the player hasn't
-      move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
-@RedNoteNotWithinBounds:
-      move.w d1, (rednote_position_y)                                          ; set the red note's position normally
- 
-      ; start of yellow fret code
-      move.w (yellownote_position_y), d1                                       ; yellow note position in d1
-      btst #pad_button_a, d0                                                   ; Check A button
-      bne @NoA                                                                 ; Branch if button off
-      cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @ASafeArea                                                           ; if so then don't accept it as a strum
-      move.w #note_start_position_y, d1
-@ASafeArea:
-@NoA:
-      ; yellow note movement code
-      add.w (tempo), d1                                                        ; add the tempo
-      cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @YellowNoteNotWithinBounds                                           ; branch if the player hasn't
-      move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
-@YellowNoteNotWithinBounds:
-      move.w d1, (yellownote_position_y)                                       ; set the yellow note's position normally
-
-      ; start of blue fret code
-      move.w (bluenote_position_y), d1                                         ; blue note position in d1
-      btst #pad_button_b, d0                                                   ; Check B button
-      bne @NoB                                                                 ; Branch if button off
-      cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @BSafeArea                                                           ; if so then don't accept it as a strum
-      move.w #note_start_position_y, d1
-@BSafeArea:
-@NoB:
-      ; blue note movement code
-      add.w (tempo), d1                                                        ; add the tempo
-      cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @BlueNoteNotWithinBounds                                             ; branch if the player hasn't
-      move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
-@BlueNoteNotWithinBounds:
-      move.w d1, (bluenote_position_y)                                         ; set the blue note's position normally
-
-      ; start of orange fret code
-      move.w (orangenote_position_y), d1                                       ; orange note position in d1
-      btst #pad_button_c, d0                                                   ; Check C button
-      bne @NoC                                                                 ; Branch if button off
-      cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @CSafeArea                                                           ; if so then don't accept it as a strum
-      move.w #note_start_position_y, d1
-@CSafeArea:
-@NoC:
-      ; orange note movement code
-      add.w (tempo), d1                                                        ; add the tempo
-      cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @OrangeNoteNotWithinBounds                                           ; branch if the player hasn't
-      move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
-@OrangeNoteNotWithinBounds:
-      move.w d1, (orangenote_position_y)                                       ; set the orange note's position normally
+      cmp.w  #(arrow_plane_border_offset-arrow_bounds_bottom), d1              ; does the player miss the note entirely
+      blt @RightArrowNotWithinBounds                                           ; branch if the player hasn't
+      move.w #arrow_start_position_y, d1                                       ; otherwise the player has so move the note back to the top
+@RightArrowNotWithinBounds:
+      move.w d1, (rightarrow_position_y)                                         ; set the blue note's position normally
 
       move.w (combo), d0                                                       ; move combo into data register
       cmp.w #10, d0                                                            ; have the player reached a combo of 10
@@ -254,11 +231,14 @@ GameLoop:
       move.w #4, (multiplier)                                                  ; set the multiplier to 4 
 @SkipX4Multiplier
 
+      move.w d3, (score)                                                       ; save the player's score
+
       jsr WaitVBlankStart                                                      ; Wait for start of vblank
 
-      ; draw the score counter
-      sub.l  #0x18, sp                                                         ; Alloc string space on stack
+      lea -$4(sp), sp                                                          ; load effective address of stack pointer
+      move.l sp, a0                                                            ; allocate temporary buffer on stack
 
+      ; draw the score counter
       move.l sp, a0                                                            ; String to a0
       move.w (score), d0                                                       ; Integer to d0
       jsr    ItoA_Int_w                                                        ; Integer to ASCII (word)
@@ -293,7 +273,7 @@ GameLoop:
       move.l #0x0, d2                                                          ; Palette to d2
       jsr DrawTextPlaneA                                                       ; Draw text
 
-      add.l  #0x18, sp                                                           ; Free string
+      lea $4(sp), sp                                                          ; free allocated temporary buffer
 
       ; ************************************
       ;  Draw The Multiplier String
@@ -304,54 +284,45 @@ GameLoop:
       move.l #0x0, d2                                                          ; Palette 0
       jsr DrawTextPlaneA                                                       ; Call draw text subroutine
 
-      ; Set green note's position
-      move.w #greennote_id, d0                                                 ; green note's sprite id
-      move.w #greennote_start_position_x, d1                                   ; green note's x position
-      move.w #GreenNoteDimensions, d2                                          ; green note's dimensions
-      move.w #0x8, d3                                                          ; green note's width in pixels
-      move.b #0x0, d4                                                          ; green note's x flipped
-      lea GreenNoteSubSpriteDimensions, a1                                     ; green note's subsprite 
-      jsr SetSpritePosX                                                        ; Set green note's x position
+      ; Set left arrow's position
+      move.w #leftarrow_id, d0                                                 ; left arrow's sprite id
+      move.w #leftarrow_start_position_x, d1                                   ; left arrow's x position
+      move.w #LeftArrowDimensions, d2                                          ; left arrow's dimensions
+      move.w #0x8, d3                                                          ; left arrow's width in pixels
+      move.b #0x0, d4                                                          ; left arrow's x flipped
+      lea LeftArrowSubSpriteDimensions, a1                                     ; left arrow's subsprite 
+      jsr SetSpritePosX                                                        ; Set left arrow's x position
 
-      move.w #greennote_id, d0                                                 ; green note's sprite id
-      move.w (greennote_position_y), d1                                        ; green note's y position
-      jsr SetSpritePosY                                                        ; Set green note's y position
+      move.w #leftarrow_id, d0                                                 ; left arrow's sprite id
+      move.w (leftarrow_position_y), d1                                        ; left arrow's y position
+      jsr SetSpritePosY                                                        ; Set left arrow's y position
 
-      ; Set red note's position
-      move.w #rednote_id, d0                                                   ; red note's sprite id
-      move.w #rednote_start_position_x, d1                                      ; red note's x position
-      jsr SetSpritePosX                                                        ; Set red note's x position
+      ; Set down arrow's position
+      move.w #downarrow_id, d0                                                 ; down arrow's sprite id
+      move.w #downarrow_start_position_x, d1                                   ; down arrow's x position
+      jsr SetSpritePosX                                                        ; Set down arrow's x position
 
-      move.w #rednote_id, d0                                                   ; red note's sprite id
-      move.w (rednote_position_y), d1                                          ; red note's y position
-      jsr SetSpritePosY                                                        ; Set red note's y position
+      move.w #downarrow_id, d0                                                 ; down arrow's sprite id
+      move.w (downarrow_position_y), d1                                        ; down arrow's y position
+      jsr SetSpritePosY                                                        ; Set down arrow's y position
 
-      ; Set yellow note's position
-      move.w #yellownote_id, d0                                                ; yellow note's sprite id
-      move.w #yellownote_start_position_x, d1                                  ; yellow note's x position
-      jsr SetSpritePosX                                                        ; Set yellow note's x position
+      ; Set up arrow's position
+      move.w #uparrow_id, d0                                                   ; up arrow's sprite id
+      move.w #uparrow_start_position_x, d1                                     ; up arrow's x position
+      jsr SetSpritePosX                                                        ; Set up arrow's x position
 
-      move.w #yellownote_id, d0                                                ; yellow note's sprite id
-      move.w (yellownote_position_y), d1                                       ; yellow note's y position
-      jsr SetSpritePosY                                                        ; Set yellow note's y position
+      move.w #uparrow_id, d0                                                   ; up arrow's sprite id
+      move.w (uparrow_position_y), d1                                          ; up arrow's y position
+      jsr SetSpritePosY                                                        ; Set up arrow's y position
 
-      ; Set blue note's position
-      move.w #bluenote_id, d0                                                  ; blue note's sprite id
-      move.w #bluenote_start_position_x, d1                                    ; blue note's x position
-      jsr SetSpritePosX                                                        ; Set blue note's x position
+      ; Set right arrow's position
+      move.w #rightarrow_id, d0                                                ; right arrow's sprite id
+      move.w #rightarrow_start_position_x, d1                                  ; right arrow's x position
+      jsr SetSpritePosX                                                        ; Set right arrow's x position
 
-      move.w #bluenote_id, d0                                                  ; blue note's sprite id
-      move.w (bluenote_position_y), d1                                         ; blue note's y position
-      jsr SetSpritePosY                                                        ; Set blue note's y position
-
-      ; Set orange note's position
-      move.w #orangenote_id, d0                                                ; orange note's sprite id
-      move.w #orangenote_start_position_x, d1                                  ; orange note's x position
-      jsr SetSpritePosX                                                        ; Set orange note's x position
-
-      move.w #orangenote_id, d0                                                ; orange note's sprite id
-      move.w (orangenote_position_y), d1                                       ; orange note's y position
-      jsr SetSpritePosY                                                        ; Set orange note's y position
+      move.w #rightarrow_id, d0                                                ; right arrow's sprite id
+      move.w (rightarrow_position_y), d1                                       ; right arrow's y position
+      jsr SetSpritePosY                                                        ; Set right arrow's y position
 
       ; Set rock indicator's position
       move.w #rockindicator_id, d0                                             ; rock indicator's sprite id
