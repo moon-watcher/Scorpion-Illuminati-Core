@@ -43,7 +43,7 @@ ItoA_Hex_w:
    rts
 
 ItoA_Int_w:
-   ; Converts a word to hex ASCII
+   ; Converts a word to integer ASCII
    ; a0 --- In/Out: String address
    ; d0 (w) In: Number to convert
 
@@ -53,14 +53,14 @@ ItoA_Int_w:
    ; Zero terminate
    move.b #0x0, -(a0)
 
-   move.w #0x0, d1   ; Char ptr
-   move.w #0x3, d2   ; 4 nybbles in a word
+   move.w #0x0, d1       ; Char ptr
+   move.w #0x3, d2       ; 4 nybbles in a word
 @NybbleLp:
    move.b d0, d3         ; Byte to d3
    andi.b #0x0F, d3      ; Bottom nybble
-   add.b  #ASCIINumericOffset, d3   ; In numeric range (0 - 9)
+   add.b #ASCIINumericOffset, d3   ; In numeric range (0 - 9)
    move.b d3, -(a0)      ; Back to string
-   lsr.w  #0x4, d0         ; Next nybble
-   dbra   d2, @NybbleLp   ; Loop
+   lsr.w #0x4, d0         ; Next nybble
+   dbra d2, @NybbleLp   ; Loop
 
    rts
