@@ -130,7 +130,7 @@ z
       move.w #0, (score)                                                       ; initialize score
       move.w #0, (combo)                                                       ; initialize combo
       move.w #1, (multiplier)                                                  ; initialize multiplier
-      move.w #5, (scoredelta)                                                  ; initalize score delta
+      move.w #1, (scoredelta)                                                  ; initalize score delta
       move.w #1, (tempo)                                                       ; initialize tempo
       move.w #arrow_start_position_y, (leftarrow_position_y)                   ; Set left arrow's y position
       move.w #arrow_start_position_y, (downarrow_position_y)                   ; Set down arrow's y position
@@ -147,6 +147,7 @@ GameLoop:
 
       move.w #(arrow_plane_safearea_offset+arrow_bounds_top), d2               ; arrow safe area offset in d2
       move.w (score), d3                                                       ; player's score into d3
+      move.w (scoredelta), d4
 
       ; start of left arrow code
       move.w (leftarrow_position_y), d1                                        ; left arrow position in d1
@@ -155,7 +156,7 @@ GameLoop:
       cmp.w d2, d1                                                             ; is the player pressing too early
       blt @LeftArrowSafeArea                                                   ; if so then don't accept it
       move.w #arrow_start_position_y, d1
-      add.w (scoredelta), d3                                                   ; increment the player's score
+      abcd d4, d3                                                              ; increment the player's score
 @LeftArrowSafeArea:
 @NoLeft:
       ; left arrow movement code
@@ -173,6 +174,7 @@ GameLoop:
       cmp.w d2, d1                                                             ; is the player pressing too early
       blt @DownArrowSafeArea                                                   ; if so then don't accept it
       move.w #arrow_start_position_y, d1
+      abcd d4, d3                                                              ; increment the player's score
 @DownArrowSafeArea:
 @NoDown:
       ; down arrow movement code
@@ -190,6 +192,7 @@ GameLoop:
       cmp.w d2, d1                                                             ; is the player pressing too early
       blt @UpArrowSafeArea                                                     ; if so then don't accept it
       move.w #arrow_start_position_y, d1
+      abcd d4, d3                                                              ; increment the player's score
 @UpArrowSafeArea:
 @NoUp:
       ; up arrow movement code
@@ -207,6 +210,7 @@ GameLoop:
       cmp.w d2, d1                                                             ; is the player pressing too early
       blt @RightArrowSafeArea                                                  ; if so then don't accept it
       move.w #arrow_start_position_y, d1
+      abcd d4, d3                                                              ; increment the player's score
 @RightArrowSafeArea:
 @NoRight:
       ; right arrow movement code
