@@ -359,3 +359,9 @@ GameLoop:
 	  include 'spritedescriptors.asm'
 
 __end                                                                          ; Very last line, end of ROM address
+
+      inform 0, "*********************"                                        ; start of binary statistics header
+      inform 0, "* Binary Statistics *"                                        ; binary statistics header
+      inform 0, "*********************"                                        ; end of binary statistics header
+      inform 0,"%d bytes used", __end-$200                                     ; number of bytes used in cartridge space
+      inform 0,"%d bytes left", $400000-__end                                  ; number of bytes remaining in cartridge space
