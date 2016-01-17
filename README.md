@@ -1,7 +1,7 @@
 # Overview
 Scorpion Illuminati is a free open source rhythm game written in Motorola 68000 Assembly language. Scorpion Illuminati is licensed under the Artistic license.
 
-![alt text](http://i.imgur.com/KUZZ2TY.gif "Pre-Alpha Screenshot")
+![alt text](http://i.imgur.com/6rIe5Sc.gif "Pre-Alpha Screenshot")
 
 ## Compiling
 You will need to download the [asm68k](http://info.sonicretro.org/File:ASM68k.7z) assembler if you don't have it already.
