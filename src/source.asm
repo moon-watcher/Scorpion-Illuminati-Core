@@ -148,6 +148,8 @@ GameLoop:
       move.w #(arrow_plane_safearea_offset+arrow_bounds_top), d2               ; arrow safe area offset in d2
       move.w (score), d3                                                       ; player's score into d3
       move.w (scoredelta), d4
+      move.w (combo), d5                                                       ; player's current combo
+      move.w #1, d6                                                            ; combo increment
 
       ; start of left arrow code
       move.w (leftarrow_position_y), d1                                        ; left arrow position in d1
@@ -157,7 +159,9 @@ GameLoop:
       blt @LeftArrowSafeArea                                                   ; if so then don't accept it
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
+      abcd d6, d5                                                              ; increment the player's combo meter
 @LeftArrowSafeArea:
+@LeftArrowDone:
 @NoLeft:
       ; left arrow movement code
       add.w (tempo), d1                                                        ; add the tempo
@@ -175,7 +179,9 @@ GameLoop:
       blt @DownArrowSafeArea                                                   ; if so then don't accept it
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
+      abcd d6, d5                                                              ; increment the the player's combo meter
 @DownArrowSafeArea:
+@DownArrowDone:
 @NoDown:
       ; down arrow movement code
       add.w (tempo), d1                                                        ; add the tempo
@@ -193,7 +199,9 @@ GameLoop:
       blt @UpArrowSafeArea                                                     ; if so then don't accept it
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
+      abcd d6, d5                                                              ; increment the player's combo meter
 @UpArrowSafeArea:
+@UpArrowDone:
 @NoUp:
       ; up arrow movement code
       add.w (tempo), d1                                                        ; add the tempo
@@ -211,7 +219,9 @@ GameLoop:
       blt @RightArrowSafeArea                                                  ; if so then don't accept it
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
+      abcd d6, d5                                                              ; increment the player's combo meter
 @RightArrowSafeArea:
+@RightArrowDone:
 @NoRight:
       ; right arrow movement code
       add.w (tempo), d1                                                        ; add the tempo
@@ -219,23 +229,23 @@ GameLoop:
       blt @RightArrowNotWithinBounds                                           ; branch if the player hasn't
       move.w #arrow_start_position_y, d1                                       ; otherwise the player has so move the note back to the top
 @RightArrowNotWithinBounds:
-      move.w d1, (rightarrow_position_y)                                         ; set the blue note's position normally
+      move.w d1, (rightarrow_position_y)                                       ; set the blue note's position normally
 
-      move.w (combo), d0                                                       ; move combo into data register
-      cmp.w #10, d0                                                            ; have the player reached a combo of 10
-      bne @SkipX2Multiplier                                                     ; if not then branch to the next step
+      cmp.w #$10, d5                                                           ; have the player reached a combo of 10
+      bne @SkipX2Multiplier                                                    ; if not then branch to the next step
       move.w #2, (multiplier)                                                  ; set the multiplier to 2
-@SkipX2Multiplier
-      cmp.w #20, d0                                                            ; have the player reached a combo of 20
+@SkipX2Multiplier:
+      cmp.w #$20, d5                                                           ; have the player reached a combo of 20
       bne @SkipX3Multiplier                                                    ; if not then branch to the next step
       move.w #3, (multiplier)                                                  ; set the multiplier to 3 
-@SkipX3Multiplier
-      cmp.w #30, d0                                                            ; have the player reached a combo of 30
+@SkipX3Multiplier:
+      cmp.w #$30, d5                                                           ; have the player reached a combo of 30
       bne @SkipX4Multiplier                                                    ; if not then branch to the next step
       move.w #4, (multiplier)                                                  ; set the multiplier to 4 
-@SkipX4Multiplier
+@SkipX4Multiplier:
 
       move.w d3, (score)                                                       ; save the player's score
+      move.w d5, (combo)                                                       ; save the player's combo
 
       jsr WaitVBlankStart                                                      ; Wait for start of vblank
 
