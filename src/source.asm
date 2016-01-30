@@ -160,6 +160,7 @@ GameLoop:
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
+      bra @LeftArrowDone                                                       ; continue through the rest of the code
 @LeftArrowSafeArea:
 @LeftArrowDone:
 @NoLeft:
@@ -180,6 +181,7 @@ GameLoop:
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the the player's combo meter
+      bra @DownArrowDone                                                       ; continue through the rest of the code
 @DownArrowSafeArea:
 @DownArrowDone:
 @NoDown:
@@ -200,6 +202,7 @@ GameLoop:
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
+      bra @UpArrowDone                                                         ; continue through the rest of the code
 @UpArrowSafeArea:
 @UpArrowDone:
 @NoUp:
@@ -220,6 +223,7 @@ GameLoop:
       move.w #arrow_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
+      bra @RightArrowDone                                                      ; continue through the rest of the code
 @RightArrowSafeArea:
 @RightArrowDone:
 @NoRight:
