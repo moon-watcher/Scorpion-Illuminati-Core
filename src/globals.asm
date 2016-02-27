@@ -14,10 +14,10 @@ screen_border_x      equ 0x0010
 screen_border_y      equ 0x0010
 
 ; note collision bounds
-arrow_bounds_top      equ 0x0000
-arrow_bounds_bottom   equ 0x0008
-arrow_bounds_left     equ 0x0000
-arrow_bounds_right    equ 0x0008
+note_bounds_top      equ 0x0000
+note_bounds_bottom   equ 0x0008
+note_bounds_left     equ 0x0000
+note_bounds_right    equ 0x0008
 
 ; object offbounds positions
 offscreen_position_x:  equ 0x0090
@@ -28,12 +28,13 @@ rockindicator_start_position_y:  equ 0x0150
 rockindicator_start_position_x:  equ 0x00CF
 
 ; start position for notes
-arrow_start_position_y:      equ 0x0097
-leftarrow_start_position_x:  equ 0x00D8
-downarrow_start_position_x:  equ 0x0100
-uparrow_start_position_x:    equ 0x0128
-rightarrow_start_position_x: equ 0x0150
+note_start_position_y:       equ 0x0097
+greennote_start_position_x:  equ 0x00C8
+rednote_start_position_x:    equ 0x00F0
+yellownote_start_position_x: equ 0x0118
+bluenote_start_position_x:   equ 0x0140
+orangenote_start_position_x: equ 0x0168
 
 ; arrow boundry locations
-arrow_plane_border_offset:   equ 0x014A
-arrow_plane_safearea_offset: equ 0x0135
+note_plane_border_offset:   equ 0x014A
+note_plane_safearea_offset: equ 0x0135

@@ -10,19 +10,21 @@
 PixelFontVRAM:     equ 0x0000
 GameTilesVRAM:     equ PixelFontVRAM+PixelFontSizeB
 RockIndicatorVRAM: equ GameTilesVRAM+GameTilesSizeB
-LeftArrowVRAM:     equ RockIndicatorVRAM+RockIndicatorSizeB
-DownArrowVRAM:     equ LeftArrowVRAM+LeftArrowSizeB
-UpArrowVRAM:       equ DownArrowVRAM+DownArrowSizeB
-RightArrowVRAM:      equ UpArrowVRAM+UpArrowSizeB
+GreenNoteVRAM:     equ RockIndicatorVRAM+RockIndicatorSizeB
+RedNoteVRAM:       equ GreenNoteVRAM+GreenNoteSizeB
+YellowNoteVRAM:    equ RedNoteVRAM+RedNoteSizeB
+BlueNoteVRAM:      equ YellowNoteVRAM+YellowNoteSizeB
+OrangeNoteVRAM:    equ BlueNoteVRAM+BlueNoteSizeB
 
 ; ************************************
 ; Include all art assets
 ; ************************************
       include assets\fonts\pixelfont.asm
-      include assets\sprites\leftarrow.asm
-      include assets\sprites\downarrow.asm
-      include assets\sprites\uparrow.asm
-      include assets\sprites\rightarrow.asm
+      include assets\sprites\greennote.asm
+      include assets\sprites\rednote.asm
+      include assets\sprites\yellownote.asm
+      include assets\sprites\bluenote.asm
+      include assets\sprites\orangenote.asm
       include assets\sprites\rockindicator.asm
       include assets\tiles\gametiles.asm
       include assets\maps\gamemap.asm
