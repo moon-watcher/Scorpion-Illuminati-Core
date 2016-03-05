@@ -140,10 +140,10 @@ z
       move.w #1, (multiplier)                                                  ; initialize multiplier
       move.w #1, (scoredelta)                                                  ; initalize score delta
       move.w #1, (tempo)                                                       ; initialize tempo
-      move.w #note_start_position_y, (greennote_position_y)                    ; Set green note's y position
-      move.w #note_start_position_y, (rednote_position_y)                      ; Set red note's y position
-      move.w #note_start_position_y, (yellownote_position_y)                   ; Set yellow note's y position
-      move.w #note_start_position_y, (bluenote_position_y)                     ; Set blue note's y position
+      move.w #(note_start_position_y+$40), (greennote_position_y)              ; Set green note's y position
+      move.w #(note_start_position_y+$30), (rednote_position_y)                ; Set red note's y position
+      move.w #(note_start_position_y+$20), (yellownote_position_y)             ; Set yellow note's y position
+      move.w #(note_start_position_y+$10), (bluenote_position_y)               ; Set blue note's y position
       move.w #note_start_position_y, (orangenote_position_y)                   ; Set orange note's y position
       move.w #rockindicator_start_position_x, (rockindicator_position_x)       ; Set rock indicator's x position
 
@@ -265,16 +265,20 @@ GameLoop:
 @OrangeNoteNotWithinBounds:
       move.w d1, (orangenote_position_y)                                         ; set the orange note's position normally
 
-      cmp.w #$10, d5                                                           ; have the player reached a combo of 10
-      bne @SkipX2Multiplier                                                    ; if not then branch to the next step
+      cmp.w #$9, d5                                                           ; have the player reached a combo of 10
+      bgt @SkipX1Multiplier                                                    ; if not then branch to next step
+      move.w #1, (multiplier)                                                  ; set the multiplier to 1
+@SkipX1Multiplier:
+      cmp.w #$10, d5                                                           ; has the player reached a combo of 10
+      blt @SkipX2Multiplier                                                    ; if not then branch to the next step
       move.w #2, (multiplier)                                                  ; set the multiplier to 2
 @SkipX2Multiplier:
       cmp.w #$20, d5                                                           ; have the player reached a combo of 20
-      bne @SkipX3Multiplier                                                    ; if not then branch to the next step
+      blt @SkipX3Multiplier                                                    ; if not then branch to the next step
       move.w #3, (multiplier)                                                  ; set the multiplier to 3 
 @SkipX3Multiplier:
       cmp.w #$30, d5                                                           ; have the player reached a combo of 30
-      bne @SkipX4Multiplier                                                    ; if not then branch to the next step
+      blt @SkipX4Multiplier                                                    ; if not then branch to the next step
       move.w #4, (multiplier)                                                  ; set the multiplier to 4 
 @SkipX4Multiplier:
 
