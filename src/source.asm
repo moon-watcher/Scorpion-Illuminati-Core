@@ -31,9 +31,9 @@ __main:
       ; ************************************
       ; Load palettes
       ; ************************************
-	  lea Palette, a0
-	  move.l #0x0, d0
-	  jsr LoadPalette
+	  lea Palette, a0                                                        ; Move Palette address to a0
+	  moveq #0x0, d0                                                         ; Palette ID in d0
+	  jsr LoadPalette                                                        ; Jump to subroutine
 
       ; ************************************
       ; Load map tiles
@@ -48,9 +48,9 @@ __main:
       ; ************************************
       lea GameMap, a0                                                          ; Map data in a0
       move.w #GameMapSizeW, d0                                                 ; Size (words) in d0
-      move.l #0x0, d1                                                          ; Y offset in d1
+      moveq #0x0, d1                                                           ; Y offset in d1
       move.w #GameTilesTileID, d2                                              ; First tile ID in d2
-      move.l #0x0, d3                                                          ; Palette ID in d3
+      moveq #0x0, d3                                                           ; Palette ID in d3
       jsr LoadMapPlaneA                                                        ; Jump to subroutine
 
       ; ************************************
@@ -60,7 +60,7 @@ __main:
       move.l #PixelFontVRAM, d0                                                ; Move VRAM dest address to d0
       move.l #PixelFontSizeT, d1                                               ; Move number of characters (font size in tiles) to d1
       jsr LoadFont                                                             ; Jump to subroutine
-z
+
       ; *************************************
       ; Load the green note sprite
       ; *************************************
@@ -72,9 +72,9 @@ z
       ; *************************************
       ; Load the red note sprite
       ; *************************************
-      lea RedNote, a0                                                        ; Move sprite address to a0
-      move.l #RedNoteVRAM, d0                                                ; Move VRAM dest address to d0
-      move.l #RedNoteSizeT, d1                                               ; Move number of tiles to d1
+      lea RedNote, a0                                                          ; Move sprite address to a0
+      move.l #RedNoteVRAM, d0                                                  ; Move VRAM dest address to d0
+      move.l #RedNoteSizeT, d1                                                 ; Move number of tiles to d1
       jsr LoadTiles                                                            ; Jump to subroutine
 
       ; *************************************
@@ -122,7 +122,7 @@ z
       lea ScoreString, a0                                                      ; String address
       move.l #PixelFontTileID, d0                                              ; First tile id
       move.w #0x0301, d1                                                       ; XY (5, 1)
-      move.l #0x0, d2                                                          ; Palette 0
+      moveq #0x0, d2                                                           ; Palette 0
       jsr DrawTextPlaneA                                                       ; Call draw text subroutine
 
       ; ************************************
@@ -158,14 +158,14 @@ GameLoop:
       move.w (score), d3                                                       ; player's score into d3
       move.w (scoredelta), d4
       move.w (combo), d5                                                       ; player's current combo
-      move.w #1, d6                                                            ; combo increment
+      moveq #1, d6                                                             ; combo increment
 
       ; start of green note code
       move.w (greennote_position_y), d1                                        ; green note position in d1
       btst #pad_button_left, d0                                                ; Check left pad
-      bne @NoLeft                                                              ; Branch if button off
+      bne.s @NoLeft                                                            ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @GreenNoteSafeArea                                                   ; if so then don't accept it
+      blt.s @GreenNoteSafeArea                                                 ; if so then don't accept it
       move.w #note_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
@@ -176,17 +176,18 @@ GameLoop:
       ; green note movement code
       add.w (tempo), d1                                                        ; add the tempo
       cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the fret entirely
-      blt @GreenNoteNotWithinBounds                                            ; branch if the player hasn't
-      move.w #note_start_position_y, d1                                       ; otherwise the player has so move the arrow back to the top
+      blt.s @GreenNoteNotWithinBounds                                          ; branch if the player hasn't
+      move.w #note_start_position_y, d1                                        ; otherwise the player has so move the arrow back to the top
+      moveq #0, d5                                                             ; player played missed the note so reset the player's combo
 @GreenNoteNotWithinBounds:
       move.w d1, (greennote_position_y)                                        ; set the left arrow's position normally
 
       ; start of red note code
       move.w (rednote_position_y), d1                                          ; red note position in d1
       btst #pad_button_right, d0                                               ; Check right pad
-      bne @NoRight                                                             ; Branch if button off
+      bne.s @NoRight                                                           ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @RedNoteSafeArea                                                     ; if so then don't accept it
+      blt.s @RedNoteSafeArea                                                   ; if so then don't accept it
       move.w #note_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the the player's combo meter
@@ -197,17 +198,18 @@ GameLoop:
       ; red note movement code
       add.w (tempo), d1                                                        ; add the tempo
       cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @RedNoteNotWithinBounds                                              ; branch if the player hasn't
+      blt.s @RedNoteNotWithinBounds                                            ; branch if the player hasn't
       move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
+      moveq #0, d5                                                             ; player played missed the note so reset the player's combo
 @RedNoteNotWithinBounds:
-      move.w d1, (rednote_position_y)                                         ; set the red note's position normally
+      move.w d1, (rednote_position_y)                                          ; set the red note's position normally
  
       ; start of yellow note code
       move.w (yellownote_position_y), d1                                       ; yellow note position in d1
       btst #pad_button_A, d0                                                   ; Check A button
-      bne @NoA                                                                 ; Branch if button off
+      bne.s @NoA                                                               ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @YellowNoteSafeArea                                                  ; if so then don't accept it
+      blt.s @YellowNoteSafeArea                                                ; if so then don't accept it
       move.w #note_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
@@ -218,17 +220,18 @@ GameLoop:
       ; yellow note movement code
       add.w (tempo), d1                                                        ; add the tempo
       cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @YellowNoteNotWithinBounds                                           ; branch if the player hasn't
+      blt.s @YellowNoteNotWithinBounds                                         ; branch if the player hasn't
       move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
+      moveq #0, d5                                                             ; player played missed the note so reset the player's combo
 @YellowNoteNotWithinBounds:
       move.w d1, (yellownote_position_y)                                       ; set the yellow note's position normally
 
       ; start of blue note code
       move.w (bluenote_position_y), d1                                         ; blue note position in d1
       btst #pad_button_B, d0                                                   ; Check B button
-      bne @NoB                                                                 ; Branch if button off
+      bne.s @NoB                                                               ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @BlueNoteSafeArea                                                    ; if so then don't accept it
+      blt.s @BlueNoteSafeArea                                                  ; if so then don't accept it
       move.w #note_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
@@ -239,17 +242,18 @@ GameLoop:
       ; blue note movement code
       add.w (tempo), d1                                                        ; add the tempo
       cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @BlueNoteNotWithinBounds                                             ; branch if the player hasn't
+      blt.s @BlueNoteNotWithinBounds                                           ; branch if the player hasn't
       move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
+      moveq #0, d5                                                             ; player played missed the note so reset the player's combo
 @BlueNoteNotWithinBounds:
       move.w d1, (bluenote_position_y)                                         ; set the blue note's position normally
 
       ; start of orange note code
       move.w (orangenote_position_y), d1                                       ; orange note position in d1
       btst #pad_button_C, d0                                                   ; Check C button
-      bne @NoC                                                                 ; Branch if button off
+      bne.s @NoC                                                               ; Branch if button off
       cmp.w d2, d1                                                             ; is the player pressing too early
-      blt @OrangeNoteSafeArea                                                  ; if so then don't accept it
+      blt.s @OrangeNoteSafeArea                                                ; if so then don't accept it
       move.w #note_start_position_y, d1
       abcd d4, d3                                                              ; increment the player's score
       abcd d6, d5                                                              ; increment the player's combo meter
@@ -260,29 +264,35 @@ GameLoop:
       ; orange note movement code
       add.w (tempo), d1                                                        ; add the tempo
       cmp.w  #(note_plane_border_offset-note_bounds_bottom), d1                ; does the player miss the note entirely
-      blt @OrangeNoteNotWithinBounds                                             ; branch if the player hasn't
+      blt.s @OrangeNoteNotWithinBounds                                         ; branch if the player hasn't
       move.w #note_start_position_y, d1                                        ; otherwise the player has so move the note back to the top
+      moveq #0, d5                                                             ; player played missed the note so reset the player's combo
 @OrangeNoteNotWithinBounds:
-      move.w d1, (orangenote_position_y)                                         ; set the orange note's position normally
+      move.w d1, (orangenote_position_y)                                       ; set the orange note's position normally
 
-      cmp.w #$9, d5                                                           ; have the player reached a combo of 10
-      bgt @SkipX1Multiplier                                                    ; if not then branch to next step
+      cmp.w #$9, d5                                                            ; have the player reached a combo of 10
+      bgt.s @SkipX1Multiplier                                                  ; if not then branch to next step
       move.w #1, (multiplier)                                                  ; set the multiplier to 1
+      move.w #1, d4                                                            ; set score delta to 1
 @SkipX1Multiplier:
       cmp.w #$10, d5                                                           ; has the player reached a combo of 10
-      blt @SkipX2Multiplier                                                    ; if not then branch to the next step
+      blt.s @SkipX2Multiplier                                                  ; if not then branch to the next step
       move.w #2, (multiplier)                                                  ; set the multiplier to 2
+      move.w #2, d4                                                            ; set score delta to 2
 @SkipX2Multiplier:
       cmp.w #$20, d5                                                           ; have the player reached a combo of 20
-      blt @SkipX3Multiplier                                                    ; if not then branch to the next step
+      blt.s @SkipX3Multiplier                                                  ; if not then branch to the next step
       move.w #3, (multiplier)                                                  ; set the multiplier to 3 
+      move.w #3, d4                                                            ; set score delta to 3
 @SkipX3Multiplier:
       cmp.w #$30, d5                                                           ; have the player reached a combo of 30
-      blt @SkipX4Multiplier                                                    ; if not then branch to the next step
+      blt.s @SkipX4Multiplier                                                  ; if not then branch to the next step
       move.w #4, (multiplier)                                                  ; set the multiplier to 4 
+      move.w #4, d4                                                            ; set score delta to 4
 @SkipX4Multiplier:
 
       move.w d3, (score)                                                       ; save the player's score
+      move.w d4, (scoredelta)                                                  ; save the score delta
       move.w d5, (combo)                                                       ; save the player's combo
 
       jsr WaitVBlankStart                                                      ; Wait for start of vblank
@@ -298,7 +308,7 @@ GameLoop:
       move.l sp, a0                                                            ; String to a0
       move.l #PixelFontTileID, d0                                              ; Font to d0
       move.l #0x0901, d1                                                       ; Position to d1
-      move.l #0x0, d2                                                          ; Palette to d2
+      moveq #0x0, d2                                                           ; Palette to d2
       jsr DrawTextPlaneA                                                       ; Draw text
 
       ; draw the combo counter
@@ -310,7 +320,7 @@ GameLoop:
       move.l sp, a0                                                            ; String to a0
       move.l #PixelFontTileID, d0                                              ; Font to d0
       move.l #0x2201, d1                                                       ; Position to d1
-      move.l #0x0, d2                                                          ; Palette to d2
+      moveq #0x0, d2                                                           ; Palette to d2
       jsr DrawTextPlaneA                                                       ; Draw text
 
       ; draw the multiplier counter
@@ -322,7 +332,7 @@ GameLoop:
       move.l sp, a0                                                            ; String to a0
       move.l #PixelFontTileID, d0                                              ; Font to d0
       move.l #0x0419, d1                                                       ; Position to d1
-      move.l #0x0, d2                                                          ; Palette to d2
+      moveq #0x0, d2                                                           ; Palette to d2
       jsr DrawTextPlaneA                                                       ; Draw text
 
       lea $4(sp), sp                                                          ; free allocated temporary buffer
@@ -333,15 +343,15 @@ GameLoop:
       lea MultiplierString, a0                                                 ; String address
       move.l #PixelFontTileID, d0                                              ; First tile id
       move.w #0x0419, d1                                                       ; XY (03, 24)
-      move.l #0x0, d2                                                          ; Palette 0
+      moveq #0x0, d2                                                           ; Palette 0
       jsr DrawTextPlaneA                                                       ; Call draw text subroutine
 
       ; Set green fret's position
       move.w #greennote_id, d0                                                 ; green fret's sprite id
       move.w #greennote_start_position_x, d1                                   ; green fret's x position
       move.w #GreenNoteDimensions, d2                                          ; green fret's dimensions
-      move.w #0x8, d3                                                          ; green fret's width in pixels
-      move.b #0x0, d4                                                          ; green fret's x flipped
+      moveq #0x8, d3                                                           ; green fret's width in pixels
+      moveq #0x0, d4                                                           ; green fret's x flipped
       lea GreenNoteSubSpriteDimensions, a1                                     ; green fret's subsprite 
       jsr SetSpritePosX                                                        ; Set green fret's x position
 
@@ -413,7 +423,7 @@ GameLoop:
 
       ; Include game art
       include 'assets\assetsmap.asm'
-	  include 'spritedescriptors.asm'
+	include 'spritedescriptors.asm'
 
 __end                                                                          ; Very last line, end of ROM address
 
